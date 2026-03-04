@@ -1,0 +1,95 @@
+"use client"; 
+
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { api } from '@/convex/_generated/api';
+import { useConvexMutation } from '@/hooks/use-convex-query';
+import { format } from 'date-fns';
+import { CheckCircle, Circle, Loader2 } from 'lucide-react';
+import React from 'react'
+import { toast } from 'sonner';
+
+const AttendeeCard = ({registration}) => {
+  const { mutate: checkInAttendee, isLoading } = useConvexMutation(
+    api .registrations.checkInAttendee
+  );
+
+  const handleManualCheckIn = async () =>{
+    try {
+      const result = await checkInAttendee({
+        qrCode: registration.qrCode,
+      });
+      if(result.success){
+        toast.success("Attendee checked in successfully");
+      }else{
+        toast.error(result.message);
+      }
+    } catch (error) {
+      toast.error(error.message || "Failed to check in attendee");
+    }
+  };
+
+return (
+  <Card className="bg-white/5 border-white/10 backdrop-blur-sm py-0">
+    <CardContent className="p-4 flex items-start gap-4">
+
+      <div
+        className={`mt-1 p-2 rounded-full ${
+          registration.checkedIn
+            ? "bg-green-500/10"
+            : "bg-gray-500/10"
+        }`}
+      >
+        {registration.checkedIn ? (
+          <CheckCircle className="w-5 h-5 text-green-400" />
+        ) : (
+          <Circle className="w-5 h-5 text-gray-400" />
+        )}
+      </div>
+
+    <div className='flex-1 min-w-0'>
+      
+      <h3 className='text-white text-base font-semibold'>{registration.attendeeName}</h3>
+      <p className='text-sm text-gray-400 mb-2'>
+        {registration.attendeeEmail}
+      </p>
+
+      <div className="flex flex-wrap gap-3 text-xs text-gray-400">
+     <span>
+    {registration.checkedIn ? "⏰ Checked in" : "🗓 Registered"}{" "}
+    {registration.checkedIn && registration.checkedInAt
+      ? format(registration.checkedInAt, "PPP")
+      : format(registration.registeredAt, "PPP")}
+  </span>
+
+  <span className="font-mono">
+    QR: {registration.qrCode}
+  </span>
+</div>
+    </div>
+
+    {!registration.checkedIn && (
+  <Button
+    size="sm"
+    variant="outline"
+    onClick={handleManualCheckIn}
+    disabled={isLoading}
+    className="gap-2"
+  >
+    {isLoading ? (
+      <Loader2 className="w-4 h-4 animate-spin" />
+    ) : (
+      <>
+        <CheckCircle className="w-4 h-4" />
+        Check In
+      </>
+    )}
+  </Button>
+)}
+
+    </CardContent>
+  </Card>
+);
+}
+
+export default AttendeeCard;
