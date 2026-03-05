@@ -198,10 +198,10 @@ export default function ExplorePage() {
                 Happening in {currentUser?.location?.city || "your area"}
               </p>
             </div>
-            <Button
-              variant="outline"
-              className="gap-2"
-              onClick={handleViewLocalEvents}
+           <Button
+            variant="outline"
+           className="gap-2 bg-white text-black hover:bg-gray-200 opacity-100"
+            onClick={handleViewLocalEvents}
             >
               View All <ArrowRight className="w-4 h-4" />
             </Button>
